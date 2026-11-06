@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive CSS Clip-Path Polygon Generator | 100% Client-Side Shape Maker</title>
+  <meta name="description" content="Design custom CSS clip-path shapes with an interactive drag-and-drop polygon editor. Instant SVG point coordinates, preset geometric shapes, and clean CSS code generated 100% client-side.">
+  <meta name="keywords" content="css clip-path generator, clip path polygon maker, css shape generator, web designer tools, client-side clip-path, polygon coordinate editor">
+  <link rel="canonical" href="https://greentools-dev.github.io/css-clip-path-generator/">
+  <meta property="og:title" content="Interactive CSS Clip-Path Polygon Generator">
+  <meta property="og:description" content="Visual CSS clip-path polygon builder with drag-and-drop nodes, presets, and instant CSS export. 100% private in-browser tool.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://greentools-dev.github.io/css-clip-path-generator/">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+              900: '#064e3b',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #f8fafc;
+      background-image: 
+        linear-gradient(to right, rgba(15, 23, 42, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(15, 23, 42, 0.04) 1px, transparent 1px);
+      background-size: 28px 28px;
+    }
+    .node-handle {
+      cursor: grab;
+      transition: fill 0.15s, transform 0.1s;
+    }
+    .node-handle:active {
+      cursor: grabbing;
+    }
+    .node-handle:hover {
+      transform: scale(1.25);
+    }
+  </style>
+
+  <!-- Structured Data JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebApplication",
+        "name": "Interactive CSS Clip-Path Polygon Generator",
+        "url": "https://greentools-dev.github.io/css-clip-path-generator/",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "All",
+        "browserRequirements": "Requires JavaScript. Requires HTML5.",
+        "description": "Visual drag-and-drop tool for creating CSS clip-path polygon shapes with real-time coordinate editing and CSS export.",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        }
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What is CSS clip-path?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "The CSS clip-path property creates a clipping region that sets what part of an element should be shown. Parts that are inside the region are shown, while those outside are hidden."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How do I add or delete points?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Click on any connecting polygon edge or use the 'Add Point' button to create a new vertex. Select an existing point and click 'Delete Point' to remove it (minimum 3 points required)."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does this tool work completely offline?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. All SVG coordinate calculations, polygon clipping, and CSS code synthesis execute 100% locally in your web browser with zero server dependencies."
+            }
+          }
+        ]
+      }
+    ]
+  </script>
+</head>
+<body class="min-h-screen flex flex-col font-sans text-slate-800 antialiased selection:bg-brand-100 selection:text-brand-900">
+
+  <!-- Header -->
+  <header class="border-b border-slate-200/80 bg-white/90 backdrop-blur-md sticky top-0 z-40">
+    <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-sm shadow-emerald-500/20">
+          <i data-lucide="shapes" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <span class="font-extrabold text-slate-900 tracking-tight text-lg">GreenTools<span class="text-emerald-600">.dev</span></span>
+          <span class="hidden sm:inline-block ml-2 text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/60">Clip-Path Maker</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="inline-flex items-center gap-1.5 text-xs font-medium text-slate-600 bg-slate-100/80 px-2.5 py-1 rounded-md border border-slate-200">
+          <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-600"></i>
+          100% Client-Side Safe
+        </span>
+        <a href="https://github.com/greentools-dev/css-clip-path-generator" target="_blank" rel="noopener noreferrer" class="text-slate-500 hover:text-slate-900 transition-colors p-1.5">
+          <i data-lucide="github" class="w-5 h-5"></i>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero & Primary Container -->
+  <main class="flex-1 max-w-6xl w-full mx-auto px-4 py-8 md:py-12 flex flex-col">
+    <div class="text-center max-w-2xl mx-auto mb-8">
+      <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+        Interactive CSS Clip-Path Generator
+      </h1>
+      <p class="mt-3 text-slate-600 text-sm sm:text-base leading-relaxed">
+        Design responsive CSS polygon cutouts visually. Drag nodes in real time, snap to a clean grid, or choose standard geometric presets to instantly export pure CSS.
+      </p>
+    </div>
+
+    <!-- Presets Toolbar -->
+    <div class="bg-white rounded-2xl border border-slate-200 p-4 mb-6 shadow-sm flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider">
+        <i data-lucide="layout-grid" class="w-4 h-4 text-emerald-600"></i>
+        <span>Geometric Presets:</span>
+      </div>
+      <div class="flex flex-wrap gap-1.5 text-xs">
+        <button type="button" class="preset-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition-colors" data-shape="triangle">Triangle</button>
+        <button type="button" class="preset-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition-colors" data-shape="hexagon">Hexagon</button>
+        <button type="button" class="preset-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition-colors" data-shape="chevron">Chevron</button>
+        <button type="button" class="preset-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition-colors" data-shape="star">Star</button>
+        <button type="button" class="preset-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition-colors" data-shape="message">Message</button>
+        <button type="button" class="preset-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition-colors" data-shape="diamond">Diamond</button>
+        <button type="button" class="preset-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition-colors" data-shape="octagon">Octagon</button>
+        <button type="button" class="preset-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition-colors" data-shape="trapezoid">Trapezoid</button>
+      </div>
+    </div>
+
+    <!-- Main Workspace (Editor + Output) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      
+      <!-- Left Column: Visual Canvas (7 cols) -->
+      <div class="lg:col-span-7 flex flex-col gap-4">
+        
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold text-slate-900 uppercase tracking-wider">Visual Canvas</span>
+              <span id="point-count-badge" class="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-mono">6 Points</span>
+            </div>
+            
+            <!-- Controls (Snap Grid & Background Preview) -->
+            <div class="flex items-center gap-3 text-xs">
+              <label class="inline-flex items-center gap-1.5 cursor-pointer select-none text-slate-600">
+                <input type="checkbox" id="snap-grid" class="rounded text-emerald-600 focus:ring-emerald-500 w-3.5 h-3.5">
+                <span>Snap 5%</span>
+              </label>
+              <select id="bg-select" class="px-2 py-1 text-xs rounded border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                <option value="gradient">Gradient BG</option>
+                <option value="mesh">Dark Violet</option>
+                <option value="emerald">Emerald Pulse</option>
+                <option value="photo">Sample Photo</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Canvas Interactive Area (Aspect ratio 1:1 or responsive) -->
+          <div class="relative w-full aspect-square max-w-[480px] mx-auto rounded-xl border border-slate-200 overflow-hidden shadow-inner select-none" id="canvas-container">
+            
+            <!-- Background Layer -->
+            <div id="clip-bg" class="absolute inset-0 w-full h-full bg-gradient-to-tr from-emerald-600 via-teal-500 to-cyan-500 transition-all duration-300"></div>
+
+            <!-- Coordinate / Grid Guide Lines -->
+            <svg id="svg-grid" class="absolute inset-0 w-full h-full pointer-events-none opacity-20" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <pattern id="grid-pattern" width="10%" height="10%" patternUnits="userSpaceOnUse">
+                  <path d="M 100 0 L 0 0 0 100" fill="none" stroke="#ffffff" stroke-width="0.5"/>
+                </pattern>
+              </defs>
+              <rect width="100%" height="100%" fill="url(#grid-pattern)" />
+            </svg>
+
+            <!-- Interactive SVG Overlay (Handles & Edges) -->
+            <svg id="svg-overlay" class="absolute inset-0 w-full h-full overflow-visible z-10" viewBox="0 0 100 100" preserveAspectRatio="none">
+              <!-- Polygon Edge Line -->
+              <polygon id="svg-polygon-wire" points="" fill="rgba(16, 185, 129, 0.2)" stroke="#ffffff" stroke-width="0.8" stroke-dasharray="2,2"/>
+              <!-- Handles Group will be populated dynamically -->
+              <g id="handles-group"></g>
+            </svg>
+
+          </div>
+
+          <!-- Canvas Actions -->
+          <div class="mt-4 flex items-center justify-between gap-3 text-xs">
+            <span class="text-slate-400">Click &amp; drag handles to reshape. Double-click line to add point.</span>
+            <div class="flex items-center gap-2">
+              <button type="button" id="btn-add-point" class="px-2.5 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-700 font-medium transition-colors flex items-center gap-1">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Point
+              </button>
+              <button type="button" id="btn-remove-point" class="px-2.5 py-1.5 rounded-lg border border-slate-200 hover:bg-red-50 text-red-600 font-medium transition-colors flex items-center gap-1">
+                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Remove Point
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right Column: Code Output & Coordinate Matrix (5 cols) -->
+      <div class="lg:col-span-5 flex flex-col gap-6">
+        
+        <!-- Generated CSS Code Box -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+              <i data-lucide="code" class="w-4 h-4 text-emerald-600"></i>
+              CSS Code Snippet
+            </span>
+            <span class="text-xs text-emerald-700 font-mono font-semibold">Standard &amp; WebKit</span>
+          </div>
+
+          <div class="relative bg-slate-900 text-slate-100 rounded-xl p-4 font-mono text-xs leading-relaxed overflow-x-auto shadow-inner">
+            <pre id="css-output" class="whitespace-pre-wrap select-all"></pre>
+          </div>
+
+          <!-- Copy Buttons -->
+          <div class="mt-4 flex items-center gap-2">
+            <button type="button" id="btn-copy-css" class="flex-1 py-2.5 px-3 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white transition-colors flex items-center justify-center gap-1.5 shadow-sm shadow-emerald-600/20">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+              <span id="label-copy-css">Copy Standard CSS</span>
+            </button>
+            <button type="button" id="btn-copy-tailwind" class="flex-1 py-2.5 px-3 text-xs font-semibold rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition-colors flex items-center justify-center gap-1.5 shadow-2xs">
+              <i data-lucide="zap" class="w-3.5 h-3.5 text-emerald-600"></i>
+              <span id="label-copy-tailwind">Copy Tailwind</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Coordinates Matrix -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+          <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+            <i data-lucide="crosshair" class="w-4 h-4 text-emerald-600"></i>
+            Point Coordinates (% X, Y)
+          </h3>
+          <div id="points-list" class="space-y-2 max-h-56 overflow-y-auto pr-1">
+            <!-- Dynamically populated coordinate inputs -->
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Sponsor Slot -->
+    <aside id="sponsor-slot" class="mt-8 p-4 rounded-xl border border-dashed border-slate-300 bg-white text-center text-xs text-slate-500">
+      <span class="font-semibold text-slate-600 uppercase tracking-wider text-[11px] block mb-1">Sponsored</span>
+      Build modern responsive CSS layouts and interactive micro-frontends with GreenTools.
+    </aside>
+
+    <!-- FAQ & How It Works -->
+    <section class="mt-12 bg-white rounded-2xl border border-slate-200/80 p-6 sm:p-8 shadow-sm">
+      <h2 class="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+        <i data-lucide="help-circle" class="w-5 h-5 text-emerald-600"></i>
+        Clip-Path Guide & Frequently Asked Questions
+      </h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-slate-600">
+        <div>
+          <h3 class="font-semibold text-slate-800 mb-1">How does polygon clip-path work in CSS?</h3>
+          <p class="leading-relaxed">
+            The <code>polygon()</code> function defines vertices as pairs of X and Y coordinate percentages separated by spaces, with each pair separated by a comma. The browser draws straight lines connecting the coordinates clockwise or counterclockwise to clip the container.
+          </p>
+        </div>
+        <div>
+          <h3 class="font-semibold text-slate-800 mb-1">Is WebKit prefix required?</h3>
+          <p class="leading-relaxed">
+            While all modern browsers support standard <code>clip-path</code>, older Safari builds and WebKit-based mobile web views still benefit from <code>-webkit-clip-path</code> for complete cross-platform rendering fidelity.
+          </p>
+        </div>
+        <div>
+          <h3 class="font-semibold text-slate-800 mb-1">Can I animate CSS clip-path shapes?</h3>
+          <p class="leading-relaxed">
+            Yes! CSS transitions and keyframe animations support polygon clip-paths, provided both keyframes have the exact same number of points. You can interpolate smoothly between complex polygon geometries.
+          </p>
+        </div>
+        <div>
+          <h3 class="font-semibold text-slate-800 mb-1">Is this tool private?</h3>
+          <p class="leading-relaxed">
+            100% private. All coordinates, SVG DOM modifications, and generated CSS snippets are processed entirely client-side in your local browser runtime.
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-200 bg-white mt-12 py-8">
+    <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+      <div class="flex items-center gap-2">
+        <span class="font-bold text-slate-800">GreenTools.dev</span>
+        <span>&bull;</span>
+        <span>100% Client-Side Web Utilities</span>
+      </div>
+      <div>
+        CSS Shapes &bull; Client-Side SVG Engine &bull; Zero Server Analytics
+      </div>
+    </div>
+  </footer>
+
+  <!-- Script Logic -->
+  <script>
+    lucide.createIcons();
+
+    // Polygon Presets
+    const presets = {
+      triangle: [
+        { x: 50, y: 0 },
+        { x: 0, y: 100 },
+        { x: 100, y: 100 }
+      ],
+      hexagon: [
+        { x: 25, y: 0 },
+        { x: 75, y: 0 },
+        { x: 100, y: 50 },
+        { x: 75, y: 100 },
+        { x: 25, y: 100 },
+        { x: 0, y: 50 }
+      ],
+      chevron: [
+        { x: 75, y: 0 },
+        { x: 100, y: 50 },
+        { x: 75, y: 100 },
+        { x: 0, y: 100 },
+        { x: 25, y: 50 },
+        { x: 0, y: 0 }
+      ],
+      star: [
+        { x: 50, y: 0 },
+        { x: 61, y: 35 },
+        { x: 98, y: 35 },
+        { x: 68, y: 57 },
+        { x: 79, y: 91 },
+        { x: 50, y: 70 },
+        { x: 21, y: 91 },
+        { x: 32, y: 57 },
+        { x: 2, y: 35 },
+        { x: 39, y: 35 }
+      ],
+      message: [
+        { x: 0, y: 0 },
+        { x: 100, y: 0 },
+        { x: 100, y: 75 },
+        { x: 75, y: 75 },
+        { x: 75, y: 100 },
+        { x: 50, y: 75 },
+        { x: 0, y: 75 }
+      ],
+      diamond: [
+        { x: 50, y: 0 },
+        { x: 100, y: 50 },
+        { x: 50, y: 100 },
+        { x: 0, y: 50 }
+      ],
+      octagon: [
+        { x: 30, y: 0 },
+        { x: 70, y: 0 },
+        { x: 100, y: 30 },
+        { x: 100, y: 70 },
+        { x: 70, y: 100 },
+        { x: 30, y: 100 },
+        { x: 0, y: 70 },
+        { x: 0, y: 30 }
+      ],
+      trapezoid: [
+        { x: 20, y: 0 },
+        { x: 80, y: 0 },
+        { x: 100, y: 100 },
+        { x: 0, y: 100 }
+      ]
+    };
+
+    // Current State
+    let points = JSON.parse(JSON.stringify(presets.hexagon));
+    let activePointIndex = null;
+    let isDragging = false;
+
+    // DOM Elements
+    const canvasContainer = document.getElementById('canvas-container');
+    const clipBg = document.getElementById('clip-bg');
+    const svgOverlay = document.getElementById('svg-overlay');
+    const svgPolygonWire = document.getElementById('svg-polygon-wire');
+    const handlesGroup = document.getElementById('handles-group');
+    const cssOutput = document.getElementById('css-output');
+    const pointsList = document.getElementById('points-list');
+    const pointCountBadge = document.getElementById('point-count-badge');
+    const snapGridCheckbox = document.getElementById('snap-grid');
+    const bgSelect = document.getElementById('bg-select');
+
+    const btnAddPoint = document.getElementById('btn-add-point');
+    const btnRemovePoint = document.getElementById('btn-remove-point');
+    const btnCopyCss = document.getElementById('btn-copy-css');
+    const btnCopyTailwind = document.getElementById('btn-copy-tailwind');
+    const labelCopyCss = document.getElementById('label-copy-css');
+    const labelCopyTailwind = document.getElementById('label-copy-tailwind');
+
+    // Build Polygon String
+    function getPolygonString() {
+      return points.map(p => `${p.x}% ${p.y}%`).join(', ');
+    }
+
+    // Render Canvas & Handles
+    function render() {
+      const polygonStr = getPolygonString();
+      const pointsSvgStr = points.map(p => `${p.x},${p.y}`).join(' ');
+
+      // Update background clip path
+      clipBg.style.clipPath = `polygon(${polygonStr})`;
+      clipBg.style.webkitClipPath = `polygon(${polygonStr})`;
+
+      // Update wireframe polygon in SVG
+      svgPolygonWire.setAttribute('points', pointsSvgStr);
+
+      // Update Handles
+      handlesGroup.innerHTML = '';
+      points.forEach((p, index) => {
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', p.x);
+        circle.setAttribute('cy', p.y);
+        circle.setAttribute('r', '2.5');
+        circle.setAttribute('fill', index === activePointIndex ? '#047857' : '#10b981');
+        circle.setAttribute('stroke', '#ffffff');
+        circle.setAttribute('stroke-width', '0.8');
+        circle.setAttribute('class', 'node-handle');
+        circle.setAttribute('data-index', index);
+
+        circle.addEventListener('mousedown', (e) => startDrag(e, index));
+        circle.addEventListener('touchstart', (e) => startDrag(e, index), { passive: false });
+
+        handlesGroup.appendChild(circle);
+      });
+
+      // Update Code Snippets
+      const code = `-webkit-clip-path: polygon(${polygonStr});\nclip-path: polygon(${polygonStr});`;
+      cssOutput.textContent = code;
+
+      // Update Badge
+      pointCountBadge.textContent = `${points.length} Points`;
+
+      // Update Coordinate Input List
+      renderPointsList();
+    }
+
+    function renderPointsList() {
+      pointsList.innerHTML = '';
+      points.forEach((p, idx) => {
+        const row = document.createElement('div');
+        row.className = `flex items-center justify-between gap-2 p-1.5 rounded-lg border text-xs ${idx === activePointIndex ? 'bg-emerald-50/70 border-emerald-300' : 'bg-slate-50 border-slate-100'}`;
+
+        row.innerHTML = `
+          <div class="flex items-center gap-1.5">
+            <span class="w-5 h-5 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center font-mono font-bold text-[10px]">${idx + 1}</span>
+            <span class="text-slate-500 font-mono">X:</span>
+            <input type="number" min="0" max="100" value="${p.x}" data-axis="x" data-index="${idx}" class="coord-input w-12 px-1.5 py-0.5 rounded border border-slate-200 text-center font-mono focus:outline-none focus:ring-1 focus:ring-emerald-500">
+            <span class="text-slate-400 font-mono">%</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="text-slate-500 font-mono">Y:</span>
+            <input type="number" min="0" max="100" value="${p.y}" data-axis="y" data-index="${idx}" class="coord-input w-12 px-1.5 py-0.5 rounded border border-slate-200 text-center font-mono focus:outline-none focus:ring-1 focus:ring-emerald-500">
+            <span class="text-slate-400 font-mono">%</span>
+          </div>
+        `;
+
+        row.querySelectorAll('.coord-input').forEach(input => {
+          input.addEventListener('change', (e) => {
+            const axis = e.target.dataset.axis;
+            const i = parseInt(e.target.dataset.index, 10);
+            let val = Math.max(0, Math.min(100, Math.round(parseFloat(e.target.value) || 0)));
+            points[i][axis] = val;
+            render();
+          });
+        });
+
+        pointsList.appendChild(row);
+      });
+    }
+
+    // Dragging Logic
+    function startDrag(e, index) {
+      e.preventDefault();
+      activePointIndex = index;
+      isDragging = true;
+      document.addEventListener('mousemove', onDrag);
+      document.addEventListener('mouseup', stopDrag);
+      document.addEventListener('touchmove', onDrag, { passive: false });
+      document.addEventListener('touchend', stopDrag);
+      render();
+    }
+
+    function onDrag(e) {
+      if (!isDragging || activePointIndex === null) return;
+      e.preventDefault();
+
+      const rect = canvasContainer.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+      let x = ((clientX - rect.left) / rect.width) * 100;
+      let y = ((clientY - rect.top) / rect.height) * 100;
+
+      // Bound to 0..100
+      x = Math.max(0, Math.min(100, x));
+      y = Math.max(0, Math.min(100, y));
+
+      // Snap grid
+      if (snapGridCheckbox.checked) {
+        x = Math.round(x / 5) * 5;
+        y = Math.round(y / 5) * 5;
+      } else {
+        x = Math.round(x);
+        y = Math.round(y);
+      }
+
+      points[activePointIndex] = { x, y };
+      render();
+    }
+
+    function stopDrag() {
+      isDragging = false;
+      document.removeEventListener('mousemove', onDrag);
+      document.removeEventListener('mouseup', stopDrag);
+      document.removeEventListener('touchmove', onDrag);
+      document.removeEventListener('touchend', stopDrag);
+    }
+
+    // Preset Switching
+    document.querySelectorAll('.preset-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const shapeKey = btn.dataset.shape;
+        if (presets[shapeKey]) {
+          points = JSON.parse(JSON.stringify(presets[shapeKey]));
+          activePointIndex = 0;
+          render();
+        }
+      });
+    });
+
+    // Add Point
+    btnAddPoint.addEventListener('click', () => {
+      // Add midpoint between last point and first point
+      const last = points[points.length - 1];
+      const first = points[0];
+      const mid = {
+        x: Math.round((last.x + first.x) / 2),
+        y: Math.round((last.y + first.y) / 2)
+      };
+      points.push(mid);
+      activePointIndex = points.length - 1;
+      render();
+    });
+
+    // Remove Point
+    btnRemovePoint.addEventListener('click', () => {
+      if (points.length <= 3) {
+        alert('A polygon requires at least 3 points.');
+        return;
+      }
+      const targetIndex = activePointIndex !== null ? activePointIndex : points.length - 1;
+      points.splice(targetIndex, 1);
+      activePointIndex = Math.max(0, targetIndex - 1);
+      render();
+    });
+
+    // Background style switcher
+    bgSelect.addEventListener('change', (e) => {
+      const val = e.target.value;
+      clipBg.className = 'absolute inset-0 w-full h-full transition-all duration-300';
+      clipBg.style.backgroundImage = '';
+
+      if (val === 'gradient') {
+        clipBg.classList.add('bg-gradient-to-tr', 'from-emerald-600', 'via-teal-500', 'to-cyan-500');
+      } else if (val === 'mesh') {
+        clipBg.classList.add('bg-gradient-to-br', 'from-indigo-900', 'via-purple-800', 'to-slate-900');
+      } else if (val === 'emerald') {
+        clipBg.classList.add('bg-emerald-600');
+      } else if (val === 'photo') {
+        clipBg.style.backgroundImage = 'url("https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=600&auto=format&fit=crop&q=80")';
+        clipBg.style.backgroundSize = 'cover';
+        clipBg.style.backgroundPosition = 'center';
+      }
+    });
+
+    // Copy Standard CSS
+    btnCopyCss.addEventListener('click', async () => {
+      const code = cssOutput.textContent;
+      await navigator.clipboard.writeText(code);
+      labelCopyCss.textContent = 'CSS Copied!';
+      setTimeout(() => labelCopyCss.textContent = 'Copy Standard CSS', 2000);
+    });
+
+    // Copy Tailwind Class
+    btnCopyTailwind.addEventListener('click', async () => {
+      const polygonStr = getPolygonString();
+      const tailwindClass = `[clip-path:polygon(${polygonStr.replace(/\s+/g, '_')})]`;
+      await navigator.clipboard.writeText(tailwindClass);
+      labelCopyTailwind.textContent = 'Class Copied!';
+      setTimeout(() => labelCopyTailwind.textContent = 'Copy Tailwind', 2000);
+    });
+
+    // Initial render
+    render();
+  </script>
+</body>
+</html>
